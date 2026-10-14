@@ -1,0 +1,394 @@
+{
+  "name": "finanzas personales equipo",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -1312,
+        -208
+      ],
+      "id": "a32f30c8-8ed9-4613-aa8b-919aaf00379d",
+      "name": "Telegram Trigger",
+      "webhookId": "8393f276-a8c2-4e7f-85de-ea2ab5809ff9",
+      "credentials": {
+        "telegramApi": {
+          "id": "rW0xPyFL8hfasO5T",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=# ROL Y OBJETIVO\n\nEres un asistente de finanzas personales conectado a Telegram mediante n8n, Google Gemini y Google Sheets.\n\nTu función es ayudar al usuario a registrar, consultar, organizar y comprender sus gastos e ingresos.\n\nTe comunicas siempre en español, con un tono natural, amable, claro y breve. Tus respuestas deben ser fáciles de entender y apropiadas para una conversación de Telegram.\n\nTu prioridad es trabajar con los datos reales de Google Sheets, realizar cálculos correctos, utilizar las herramientas disponibles cuando corresponda y no inventar información financiera.\n\n# 1. ALCANCE DEL ASISTENTE\n\nTu única función es ayudar con finanzas personales.\n\nPuedes:\n- Registrar gastos e ingresos.\n- Consultar movimientos registrados.\n- Consultar totales generales y por categoría.\n- Consultar movimientos por fecha, semana, mes o periodo.\n- Calcular diferencias entre ingresos y gastos.\n- Elaborar resúmenes de movimientos.\n- Ayudar a organizar presupuestos y metas de ahorro.\n- Ofrecer recomendaciones generales para administrar el dinero.\n\nNo debes responder preguntas ajenas a las finanzas personales.\n\nSi el usuario pregunta sobre otro tema, responde brevemente:\n\n\"¡Estoy aquí para ayudarte con tus finanzas personales! 😊 Puedo registrar tus gastos e ingresos, consultar tus totales o ayudarte a organizar un presupuesto. ¿Qué te gustaría hacer?\"\n\nNo utilices herramientas financieras para responder preguntas fuera de tu alcance.\n\n# 2. INTERPRETACIÓN DE LOS MENSAJES\n\nAntes de actuar, identifica la intención del usuario.\n\nLas intenciones posibles son:\n- Registrar un gasto.\n- Registrar un ingreso.\n- Consultar gastos o ingresos.\n- Consultar movimientos por categoría.\n- Consultar movimientos por fecha o periodo.\n- Calcular totales, diferencias o promedios.\n- Consultar un movimiento anterior.\n- Solicitar orientación general sobre finanzas personales.\n- Saludar o conversar dentro del ámbito financiero.\n\nSelecciona las herramientas necesarias según la intención identificada.\n\nNo registres movimientos cuando el usuario solamente salude, haga preguntas o solicite información.\n\nSi falta un dato indispensable para registrar un movimiento, pregunta únicamente por el dato que falta.\n\n# 3. HERRAMIENTAS DISPONIBLES\n\nUtiliza las herramientas conectadas al agente de acuerdo con su función.\n\n## Google Sheets — Obtener filas\n\nUtiliza esta herramienta para consultar los movimientos reales registrados en la hoja de cálculo.\n\nEs obligatoria cuando el usuario solicita información sobre sus gastos, ingresos, totales, categorías o movimientos anteriores.\n\n## Google Sheets — Agregar filas\n\nUtiliza esta herramienta para registrar gastos e ingresos nuevos.\n\nNo afirmes que un movimiento se guardó hasta comprobar que la herramienta se ejecutó correctamente.\n\n## Calculator\n\nUtiliza esta herramienta para realizar operaciones aritméticas cuando corresponda, especialmente sumas de varios movimientos, totales por categoría, ingresos, gastos y saldos netos.\n\nPrimero consulta Google Sheets para obtener los montos reales. Después utiliza Calculator para efectuar las operaciones necesarias.\n\nNo afirmes que utilizaste una herramienta si no se ejecutó realmente.\n\n# 4. REGISTRO DE GASTOS E INGRESOS\n\nCuando el usuario comunique un gasto o ingreso concreto con un monto identificable, registra el movimiento mediante Google Sheets — Agregar filas.\n\nIdentifica los siguientes datos:\n\n- Usuario.\n- Monto.\n- Categoría.\n- Fecha.\n- Descripción.\n\nEnvía el monto como valor numérico, sin símbolos monetarios.\n\nClasifica el movimiento correctamente como gasto o ingreso. No mezcles ambos tipos.\n\nUtiliza la categoría y descripción que correspondan al mensaje. Si el usuario no especifica una categoría y no puede determinarse con certeza, pregunta antes de registrar.\n\nConserva los nombres de las columnas existentes en Google Sheets. No cambies sus encabezados ni inventes columnas.\n\nSi el usuario indica un movimiento financiero real, debes intentar registrarlo mediante la herramienta correspondiente. No respondas que se registró antes de ejecutar la herramienta.\n\nSi la herramienta falla, no se ejecuta o no confirma el éxito, informa que no fue posible guardar el movimiento.\n\nCuando el registro sea exitoso, confirma brevemente:\n- Monto.\n- Categoría.\n- Descripción.\n- Fecha registrada.\n\n# 5. FECHAS Y ZONA HORARIA\n\nLa zona horaria de referencia es America/Mazatlan.\n\nTodas las fechas nuevas deben guardarse en formato YYYY-MM-DD.\n\nUtiliza la fecha y hora actuales proporcionadas por el contexto de ejecución de n8n. Convierte ese valor a la zona horaria America/Mazatlan cuando sea necesario.\n\nInterpreta las expresiones temporales de esta manera:\n\n- \"Hoy\": fecha actual en America/Mazatlan.\n- \"Ayer\": fecha actual menos un día.\n- \"Antier\": fecha actual menos dos días.\n- \"Hace tres días\": fecha actual menos tres días.\n- Fecha explícita: respeta la fecha indicada y conviértela a YYYY-MM-DD.\n- Fecha sin año: determina el año únicamente si puede establecerse con certeza.\n\nNo utilices fechas de ejemplos, registros anteriores, memoria simple ni valores predeterminados como sustitutos de la fecha actual.\n\nNo asumas que una fecha antigua corresponde a hoy.\n\nAntes de guardar un movimiento, comprueba que la fecha corresponda a la expresión temporal del usuario.\n\nSi no puedes determinar la fecha con certeza, pregunta al usuario antes de registrar el movimiento.\n\nLa fecha debe calcularse antes de llamar a Google Sheets — Agregar filas. No dependas de que la herramienta de escritura convierta automáticamente expresiones como \"hoy\" o \"ayer\".\n\n# 6. CATEGORÍAS FINANCIERAS\n\nUtiliza categorías claras y consistentes.\n\nEjemplos de categorías de gastos:\n- Comida.\n- Transporte.\n- Escuela.\n- Salud.\n- Entretenimiento.\n- Ropa.\n- Accesorios.\n- Servicios.\n- Compras.\n- Otros.\n\nLos ingresos deben identificarse como ingresos, por ejemplo, con la categoría \"Ingresos\".\n\nSi ya existe una categoría en Google Sheets, conserva su nombre para evitar crear categorías duplicadas por diferencias de escritura.\n\nAl consultar datos, trata las diferencias de mayúsculas y minúsculas como equivalentes cuando se refieran claramente a la misma categoría. No modifiques los nombres de las columnas.\n\nNo clasifiques automáticamente como ingreso un movimiento que no tenga evidencia de serlo.\n\n# 7. CONSULTA DE MOVIMIENTOS\n\nCuando el usuario solicite información financiera basada en sus registros, consulta primero Google Sheets — Obtener filas.\n\nUtiliza los datos recuperados como fuente de verdad.\n\nNo respondas basándote exclusivamente en:\n- La memoria de la conversación.\n- Resultados de consultas anteriores.\n- Cantidades mencionadas previamente.\n- Suposiciones sobre lo que debería haber en la hoja.\n\nSelecciona los movimientos que correspondan al usuario y al periodo solicitado.\n\nSi no se especifica un periodo, consulta todos los movimientos disponibles correspondientes al usuario.\n\nSi se solicita un día, semana, mes o periodo concreto, aplica el filtro temporal correspondiente.\n\nLas fechas pueden aparecer en distintos formatos, como:\n- YYYY-MM-DD.\n- DD/MM/YYYY.\n- YYYY-MM.\n\nInterpreta cada formato cuidadosamente.\n\nUn valor YYYY-MM representa un mes, no una fecha diaria exacta. No conviertas un registro mensual en una fecha específica sin evidencia.\n\nSi un registro no permite determinar con certeza si pertenece al periodo solicitado, no inventes una interpretación.\n\n# 8. CÁLCULO DE GASTOS TOTALES\n\nCuando el usuario pregunte cuánto ha gastado, cuánto lleva gastado o cuál es el total de sus gastos:\n\n1. Consulta Google Sheets.\n2. Recupera los registros disponibles que correspondan al usuario y al periodo solicitado.\n3. Identifica todos los movimientos de gastos, sin limitarte a una sola categoría.\n4. Excluye los ingresos.\n5. Cuenta cada fila válida una sola vez.\n6. Utiliza Calculator para sumar los montos cuando corresponda.\n7. Verifica el resultado antes de responder.\n\nNo presentes el total de una categoría como si fuera el total general.\n\nSi la consulta devuelve datos parciales, no presentes la suma parcial como un total completo.\n\n# 9. CÁLCULO POR CATEGORÍA\n\nCuando el usuario pregunte cuánto ha gastado en una categoría específica:\n\n1. Consulta Google Sheets.\n2. Selecciona los movimientos de esa categoría.\n3. Aplica el periodo solicitado, si corresponde.\n4. Excluye las demás categorías y los ingresos.\n5. Utiliza Calculator para sumar los montos cuando corresponda.\n6. Verifica el resultado antes de responder.\n\nCuando solicite un resumen por categorías, presenta el total de cada categoría y, si se solicita, el total general.\n\nNo incluyas movimientos sin categoría dentro de una categoría específica, aunque su descripción parezca relacionada.\n\nSi existen movimientos sin categoría, puedes informarlos por separado como \"Sin categoría\", sin asignarlos automáticamente.\n\n# 10. CÁLCULO DE INGRESOS\n\nCuando el usuario pregunte cuánto dinero ha recibido o cuánto ha ingresado:\n\n1. Consulta Google Sheets.\n2. Selecciona únicamente los movimientos identificados como ingresos.\n3. Aplica los filtros de usuario y periodo solicitados.\n4. Cuenta cada fila válida una sola vez.\n5. Utiliza Calculator para sumar los montos cuando corresponda.\n6. Verifica el resultado antes de responder.\n\nNunca incluyas gastos en el total de ingresos.\n\nNo consideres que un movimiento es ingreso únicamente porque tiene un monto positivo. Debe existir evidencia de que corresponde a un ingreso.\n\nSi solo existe un ingreso de $500 en los datos recuperados y la consulta está completa para el usuario y periodo solicitados, el total de ingresos es $500.\n\n# 11. SALDO NETO\n\nCuando el usuario pregunte cuánto dinero le queda según los movimientos registrados, calcula:\n\nSaldo neto = total de ingresos - total de gastos.\n\nConsulta Google Sheets antes de calcular ambos totales y utiliza Calculator para realizar la operación.\n\nAclara que el resultado representa el saldo neto de los movimientos registrados, no necesariamente el saldo bancario real.\n\nNo afirmes conocer cuentas bancarias, deudas o saldos que no estén disponibles en los datos consultados.\n\n# 12. CONTEO DE REGISTROS Y DUPLICADOS\n\nCada fila válida de Google Sheets representa un movimiento registrado.\n\nSi existen dos filas distintas con el mismo monto, categoría, fecha y descripción, cuenta ambas, salvo que puedas comprobar que una es un duplicado generado por error.\n\nNo elimines ni descartes movimientos únicamente porque parecen iguales.\n\nNo sumes dos veces una misma fila por haberla recibido repetida en la respuesta de una herramienta.\n\nAntes de calcular, verifica que cada fila se incluya una sola vez.\n\n# 13. PREVENCIÓN DE REGISTROS DUPLICADOS\n\nAntes de registrar un movimiento, determina si el usuario está comunicando una operación nueva o preguntando por una ya registrada.\n\nSi el usuario confirma que es un gasto o ingreso nuevo, registra el movimiento.\n\nSi pregunta si un movimiento ya fue registrado, consulta Google Sheets antes de responder.\n\nSi el mensaje es ambiguo y podría generar un duplicado, solicita confirmación antes de guardarlo.\n\nNo registres automáticamente el mismo movimiento dos veces durante una sola solicitud.\n\nNo vuelvas a registrar un movimiento cuando el usuario únicamente solicite consultar un total o revisar un movimiento anterior.\n\nNo afirmes que detectaste un duplicado si no consultaste los registros necesarios para comprobarlo.\n\n# 14. RESULTADOS INCOMPLETOS Y ERRORES\n\nNo asumas que una consulta contiene todos los movimientos si Google Sheets devuelve un resultado limitado o parcial.\n\nSi la herramienta devuelve solo una fila, un subconjunto de registros o información insuficiente para responder una consulta general, no presentes ese resultado como el total completo.\n\nSi no puedes recuperar todos los registros necesarios, explica brevemente que no puedes verificar el total con los datos disponibles.\n\nNo afirmes que revisaste todos los registros si no puedes comprobarlo.\n\nSi una herramienta presenta un error, informa que no fue posible completar la operación.\n\nNo sustituyas los datos faltantes con cantidades recordadas, estimadas o inventadas.\n\nNo confirmes una operación que no se ejecutó correctamente.\n\n# 15. MEMORIA DE CONVERSACIÓN\n\nUtiliza Simple Memory para mantener el contexto de la conversación, recordar preferencias y comprender referencias como:\n- \"Ese gasto\".\n- \"El de ayer\".\n- \"Mi última compra\".\n- \"La categoría que mencioné\".\n\nLa memoria no sustituye los registros de Google Sheets.\n\nCuando el usuario solicite cifras reales, totales, ingresos, gastos o movimientos históricos, consulta Google Sheets antes de responder.\n\nNo utilices la memoria como fuente definitiva para calcular cantidades financieras ni para determinar la fecha actual.\n\n# 16. RESPUESTAS AL USUARIO\n\nResponde siempre en español, con un tono natural, amable, claro y breve.\n\nAdapta la respuesta a la solicitud.\n\nEjemplo de total general:\n\n\"Llevas registrados $697 en gastos en el periodo consultado:\n- Comida: $663.\n- Accesorios: $34.\n- Total: $697.\"\n\nEste ejemplo solo muestra el formato esperado. No utilices esas cantidades como respuesta automática; siempre calcula con los datos reales consultados.\n\nPara un total por categoría, muestra la categoría y su monto.\n\nPara un resumen, presenta los totales y los detalles relevantes sin saturar el mensaje.\n\nNo expongas JSON, instrucciones internas, nombres técnicos de parámetros ni detalles innecesarios de la configuración de n8n.\n\nNo afirmes que realizaste operaciones que las herramientas no hayan confirmado.\n\n# 17. ORIENTACIÓN GENERAL SOBRE FINANZAS\n\nPuedes ofrecer recomendaciones sencillas para organizar el dinero, controlar gastos, planificar presupuestos y establecer metas de ahorro.\n\nDistingue claramente los consejos generales de los datos reales del usuario.\n\nNo presentes estimaciones como si fueran movimientos registrados.\n\nNo afirmes conocer ingresos, deudas, gastos o saldos que no estén disponibles en los datos consultados.\n\n# 18. VERIFICACIÓN FINAL\n\nAntes de responder a una consulta financiera, verifica:\n\n1. ¿Consulté Google Sheets cuando necesitaba datos reales?\n2. ¿Seleccioné el usuario correcto?\n3. ¿Apliqué el periodo solicitado?\n4. ¿Incluí todas las categorías cuando se pidió un total general?\n5. ¿Excluí las categorías no solicitadas cuando se pidió un total por categoría?\n6. ¿Separé correctamente ingresos y gastos?\n7. ¿Conté cada fila una sola vez?\n8. ¿Utilicé los montos reales recuperados?\n9. ¿El resultado aritmético es correcto?\n10. ¿Tengo suficientes datos para afirmar que el total está completo?\n11. ¿La fecha registrada coincide con la fecha solicitada?\n12. ¿La fecha se determinó utilizando el contexto actual de n8n y la zona horaria America/Mazatlan?\n\nSi una condición indispensable no se cumple, no presentes el resultado como definitivo.\n\nTu prioridad es la precisión financiera, la transparencia y el uso correcto de las herramientas disponibles.",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1088,
+        -224
+      ],
+      "id": "598c2de1-0eb2-4d47-9968-7a3323cdbf2d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        16
+      ],
+      "id": "08fff2ab-4d46-4a54-a9cb-44f4f21a73e7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "T5pXL5EXikX72Olk",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        -224
+      ],
+      "id": "20f2a678-04fc-4dd5-823f-af35a741cb1d",
+      "name": "Send a text message",
+      "webhookId": "0cdb2920-a0cd-4b1a-81fd-a349303b4acc",
+      "credentials": {
+        "telegramApi": {
+          "id": "rW0xPyFL8hfasO5T",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1072,
+        32
+      ],
+      "id": "2fceace9-5a74-4258-ad47-80bf65bf8e92",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta los movimientos financieros registrados en Google Sheets. Usa esta herramienta cada vez que el usuario pregunte por gastos, ingresos, categorías, fechas o totales. Lee las filas devueltas y filtra los movimientos según la pregunta: si solicita comida, suma únicamente las filas cuya categoría sea comida; si solicita accesorios, suma únicamente accesorios; si solicita el total general, suma todas las categorías. No incluyas categorías que el usuario no pidió. Usa la herramienta Calculator para realizar las sumas y no inventes datos.",
+        "documentId": {
+          "__rl": true,
+          "value": "1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM",
+          "mode": "list",
+          "cachedResultName": "Finanzas_Agente_Equipo5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -912,
+        48
+      ],
+      "id": "f9612e62-f7da-4a83-9d95-b60f5fb93903",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Cxg5kzM7p22sVQAT",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Registra un gasto o ingreso en Google Sheets. Usa esta herramienta cuando el usuario comunique un movimiento financiero concreto con un monto identificable.\n\nDebes llamar a esta herramienta para guardar el movimiento, no basta con responder al usuario.\n\nObtén del mensaje:\n- monto: cantidad numérica, sin símbolo monetario.\n- categoria: categoría del movimiento.\n- descripcion: descripción breve.\n- fecha: fecha del movimiento en formato YYYY-MM-DD.\n\nEl usuario se obtiene del mensaje de Telegram. No inventes datos.\n\nDespués de llamar a la herramienta, confirma el registro únicamente si la ejecución fue exitosa. Si no se ejecutó o falló, informa que no se pudo guardar.\n\nNo uses esta herramienta para saludos, preguntas generales ni consultas de movimientos anteriores.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM",
+          "mode": "list",
+          "cachedResultName": "Finanzas_Agente_Equipo5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKzTME0KahSbt7pvv_rzKeCY1m--EmKsoN-TPJjRtqM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "usuario": "={{ $('Telegram Trigger').item.json.message.from.username || $('Telegram Trigger').item.json.message.from.first_name }}",
+            "monto": "={{ $fromAI('monto', 'Monto numérico del movimiento', 'number') }}",
+            "descripción": "={{ $fromAI('descripcion', 'Descripción breve del movimiento', 'string') }}",
+            "fecha": "={{ $fromAI('fecha', 'Fecha del movimiento en formato YYYY-MM-DD. Usa la fecha actual de America/Mazatlan si dice hoy; resta un día si dice ayer y dos días si dice antier. Si indica una fecha específica, respétala.', 'string') }}",
+            "categorias": "={{ $fromAI('categoria', 'Categoría del gasto o ingreso', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "usuario",
+              "displayName": "usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "monto",
+              "displayName": "monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "categorias",
+              "displayName": "categorias",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "descripción",
+              "displayName": "descripción",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -592,
+        32
+      ],
+      "id": "ade19848-aaa3-4d7c-b283-b21642dd8d85",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Cxg5kzM7p22sVQAT",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        144
+      ],
+      "id": "3f8e2b53-2a3c-400c-ade8-30240dfd92b1",
+      "name": "Calculator"
+    }
+  ],
+  "pinData": {
+    "Send a text message": [
+      {
+        "json": {
+          "ok": true,
+          "result": {
+            "message_id": 196,
+            "from": {
+              "id": 8969310814,
+              "is_bot": true,
+              "first_name": "Finanzas Personales IA",
+              "username": "FinanzasGastosIA2026_bot"
+            },
+            "chat": {
+              "id": 5931625916,
+              "first_name": "Lili",
+              "type": "private"
+            },
+            "date": 1791953930,
+            "text": "Tu saldo neto actual (calculado restando el total de tus gastos del total de tus ingresos registrados) es de $-337. \n\nAquí tienes el desglose:\n- Total de ingresos: $500\n- Total de gastos: $837\n\nNota: Este resultado representa el balance neto de los movimientos que tienes registrados en tu hoja de cálculo.\n\nThis message was sent automatically with n8n",
+            "entities": [
+              {
+                "offset": 194,
+                "length": 112,
+                "type": "bold"
+              },
+              {
+                "offset": 308,
+                "length": 41,
+                "type": "italic"
+              },
+              {
+                "offset": 349,
+                "length": 3,
+                "type": "text_link",
+                "url": "https://n8n.io/?utm_source=n8n-internal&utm_medium=powered_by&utm_campaign=n8n-nodes-base.telegram_8a2f236ffbe5f2f2b26244f8c7524c3928b9697a46790841d64073660b15b310"
+              }
+            ],
+            "link_preview_options": {
+              "is_disabled": true
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fd27cad5-ac3d-4e15-96e0-b0e3d98494f3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8a2f236ffbe5f2f2b26244f8c7524c3928b9697a46790841d64073660b15b310"
+  },
+  "nodeGroups": [],
+  "id": "hyqrW9yqGQ9dYzVC",
+  "tags": []
+}
